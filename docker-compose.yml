@@ -1,0 +1,92 @@
+services:
+  # RabbitMQ 메시지 브로커
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: nest-ms-rabbitmq
+    ports:
+      - "5672:5672" # AMQP 포트
+      - "15672:15672" # 관리 UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    healthcheck:
+      test: rabbitmq-diagnostics ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - nest-ms-network
+
+  # API Gateway (HTTP 진입점)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: development
+    container_name: nest-ms-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      RABBITMQ_URI: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./apps/api-gateway/src:/app/apps/api-gateway/src
+      - ./libs/shared/src:/app/libs/shared/src
+    networks:
+      - nest-ms-network
+    command: pnpm run start:dev --project api-gateway
+
+  # API 마이크로서비스
+  api-service:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+      target: development
+    container_name: nest-ms-api-service
+    environment:
+      NODE_ENV: development
+      RABBITMQ_URI: amqp://guest:guest@rabbitmq:5672
+      API_QUEUE: api_queue
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./libs/shared/src:/app/libs/shared/src
+    networks:
+      - nest-ms-network
+    command: pnpm run start:dev --project api
+
+  # Admin API 마이크로서비스
+  admin-api-service:
+    build:
+      context: .
+      dockerfile: ./apps/admin-api/Dockerfile
+      target: development
+    container_name: nest-ms-admin-api-service
+    environment:
+      NODE_ENV: development
+      RABBITMQ_URI: amqp://guest:guest@rabbitmq:5672
+      ADMIN_API_QUEUE: admin_api_queue
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./apps/admin-api/src:/app/apps/admin-api/src
+      - ./libs/shared/src:/app/libs/shared/src
+    networks:
+      - nest-ms-network
+    command: pnpm run start:dev --project admin-api
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  nest-ms-network:
+    driver: bridge

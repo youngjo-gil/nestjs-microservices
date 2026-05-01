@@ -1,19 +1,41 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
+import { timeout } from 'rxjs/operators';
+import { ORDERS_PATTERNS } from '@app/shared';
 
 @Controller('orders')
 export class OrdersController {
+  constructor(
+    @Inject('ORDERS_SERVICE')
+    private readonly ordersClient: ClientProxy,
+  ) { }
+
   @Get()
-  getOrders() {
-    return { message: 'Orders endpoint' };
+  async getOrders() {
+    console.log('getOrders :::::: ');
+    return await lastValueFrom(
+      this.ordersClient.send(ORDERS_PATTERNS.GET_ORDERS, {}).pipe(
+        timeout(5000),
+      ),
+    );
   }
 
   @Get(':id')
-  getOrder(@Param('id') id: string) {
-    return { message: `Get order ${id}` };
+  async getOrder(@Param('id') id: string) {
+    return await lastValueFrom(
+      this.ordersClient.send(ORDERS_PATTERNS.GET_ORDER, { id }).pipe(
+        timeout(5000),
+      ),
+    );
   }
 
   @Post()
-  createOrder(@Body() body: any) {
-    return { message: 'Create order', data: body };
+  async createOrder(@Body() body: any) {
+    return await lastValueFrom(
+      this.ordersClient.send(ORDERS_PATTERNS.CREATE_ORDER, body).pipe(
+        timeout(5000),
+      ),
+    );
   }
 }

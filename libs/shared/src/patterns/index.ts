@@ -20,8 +20,21 @@ export const ORDERS_PATTERNS = {
   DELETE_ORDER: 'delete_order',
 };
 
+export const ORDER_EVENTS = {
+  CREATED: 'order.created',
+  UPDATED: 'order.updated',
+  SHIPPED: 'order.shipped',
+  DELIVERED: 'order.delivered',
+};
+
+export const USER_EVENTS = {
+  REGISTERED: 'user.registered',
+  DELETED: 'user.deleted',
+};
+
 export const SERVICE_NAMES = {
   AUTH_SERVICE: 'AUTH_SERVICE',
   USERS_SERVICE: 'USERS_SERVICE',
   ORDERS_SERVICE: 'ORDERS_SERVICE',
+  NOTIFICATIONS_SERVICE: 'NOTIFICATIONS_SERVICE',
 };

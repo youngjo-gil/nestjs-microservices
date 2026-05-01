@@ -1,15 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { OrdersServiceModule } from './orders-service.module';
+import { NotificationsServiceModule } from './notifications-service.module';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    OrdersServiceModule,
+    NotificationsServiceModule,
     {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RABBITMQ_URI || 'amqp://guest:guest@localhost:5672'],
-        queue: 'orders_queue',
+        queue: 'notifications_queue',
         queueOptions: { durable: true },
         noAck: false,
       },

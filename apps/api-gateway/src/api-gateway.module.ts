@@ -47,8 +47,21 @@ import { OrdersController } from './orders/orders.controller';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            urls: [configService.get<string>('RABBITMQ_URI', 'amqp://localhost:5672')],
+            urls: [configService.get<string>('RABBITMQ_URI', 'amqp://guest:guest@localhost:5672')],
             queue: 'orders_queue',
+            queueOptions: { durable: true },
+          },
+        }),
+      },
+      {
+        name: 'NOTIFICATIONS_SERVICE',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URI', 'amqp://localhost:5672')],
+            queue: 'notifications_queue',
             queueOptions: { durable: true },
           },
         }),
@@ -58,4 +71,4 @@ import { OrdersController } from './orders/orders.controller';
   controllers: [HealthController, UsersController, AuthController, OrdersController],
   providers: [ApiGatewayService],
 })
-export class ApiGatewayModule {}
+export class ApiGatewayModule { }

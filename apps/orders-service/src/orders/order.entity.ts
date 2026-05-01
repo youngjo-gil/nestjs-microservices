@@ -1,20 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
-import { OrderItem } from './order-item.entity';
+// import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+// import { OrderItem } from './order-item.entity';
 
-@Entity('orders')
-export class Order {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+// @Entity('orders')
+// export class Order {
+//   @PrimaryGeneratedColumn('uuid')
+//   id: string;
 
-  @Column('uuid')
-  userId: string;
+//   @Column('uuid')
+//   userId: string;
 
-  @Column({ default: 'pending' })
-  status: string;
+//   @Column({ default: 'pending' })
+//   status: string;
 
-  @OneToMany(() => OrderItem, item => item.order, { cascade: true })
-  items: OrderItem[];
+//   @OneToMany(() => OrderItem, item => item.order, { cascade: true })
+//   items: OrderItem[];
 
-  @CreateDateColumn()
-  createdAt: Date;
-}
+//   @CreateDateColumn()
+//   createdAt: Date;
+// }
